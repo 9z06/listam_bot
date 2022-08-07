@@ -29,7 +29,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 NGROK = env("NGROK_IP")
-ALLOWED_HOSTS = ['0.0.0.0', NGROK, '127.0.0.1']
+ALLOWED_HOSTS = ['0.0.0.0', NGROK, '127.0.0.1', 'localhost']
 
 
 # Application definition

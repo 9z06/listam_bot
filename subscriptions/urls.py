@@ -5,5 +5,5 @@ from .views import *
 
 
 urlpatterns = [
-    path('', web_hook),
+    path('', ProcessHookView.as_view(), name="hook"),
 ]

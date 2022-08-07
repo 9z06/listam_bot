@@ -3,32 +3,24 @@ import telebot
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 
 from listam_bot.settings import BOT_TOKEN, NGROK_IP
 from .models import Subscription
 
 WEBHOOK_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/setwebhook?url=https://{NGROK_IP}/"
-#https://api.telegram.org/bot5264023566:AAG_N4w6aNc45yOE0fHiLzMC17dpJK88-6U/setwebhook?url=https://e4b9-46-71-44-15.eu.ngrok.io/
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
 
-@csrf_exempt
-def web_hook(request):
-    print(123, request.body)
-    json_string = request.body.decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return HttpResponse()
-
-
-# @csrf_exempt
-# def web_hook(request):
-#     print(123)
-#     payload = json.loads(request.body.decode('utf-8'))
-#     update = telebot.types.Update.de_json(payload)
-#     bot.process_new_updates([update])
-#     return HttpResponse()
+@method_decorator(csrf_exempt, name='dispatch')
+class ProcessHookView(View):
+    def post(self, request, *args, **kwargs):
+        json_string = json.loads(request.body)
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return HttpResponse()
 
 
 @csrf_exempt
@@ -41,7 +33,11 @@ def help(message):
 @csrf_exempt
 @bot.message_handler(commands=['subscribe'])
 def subscribe(message):
-    Subscription.get_or_create(chat_id=int(message.chat.id))
+    subscription, created = Subscription.objects.get_or_create(chat_id=int(message.chat.id))
+    if created:
+        bot.send_message(message.chat.id, "You subscribed")
+    else:
+        bot.send_message(message.chat.id, "Subscription was already created")
 
 
 @csrf_exempt
@@ -50,5 +46,7 @@ def unsubscribe(message):
     try:
         subscription = Subscription.objects.get(chat_id=message.chat.id)
         subscription.delete()
+        bot.send_message(message.chat.id, "You unsubscribed")
     except Subscription.DoesNotExist:
+        bot.send_message(message.chat.id, "You don't have subscription")
         pass
