@@ -1,9 +1,8 @@
-from django.conf.urls import url
 from django.urls import path
 
-from .views import *
+from .views import ProcessHookView
 
 
 urlpatterns = [
-    path('', ProcessHookView.as_view(), name="hook"),
+    path("", ProcessHookView.as_view(), name="hook"),
 ]

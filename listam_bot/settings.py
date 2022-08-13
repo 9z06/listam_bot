@@ -29,7 +29,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 NGROK = env("NGROK_IP")
-ALLOWED_HOSTS = ['0.0.0.0', NGROK, '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ["0.0.0.0", NGROK, "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "subscriptions",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 BOT_TOKEN = env("TOKEN")
 NGROK_IP = env("NGROK_IP")
+
+# Celery
+
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
